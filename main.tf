@@ -2,8 +2,8 @@ data "aws_availability_zones" "azs" {}
 
 module "vpc" {
   source                       = "terraform-aws-modules/vpc/aws"
-  cidr                         = "10.0.0.0/16"
-  public_subnets               = ["10.0.1.0/24"]
+  cidr                         = var.vpc_cidr
+  public_subnets               = var.public_subnets
   azs                          = data.aws_availability_zones.azs.names
   tags                         = { "Name" = "terraform vpc" }
   create_database_subnet_group = false
@@ -12,7 +12,7 @@ module "vpc" {
 }
 
 resource "aws_instance" "wordpress" {
-  ami           = "ami-0397abf91212932d1"
+  ami           = var.ami
   instance_type = "t2.micro"
   tags = {
     Name = "wordpress ec2 terraform"
