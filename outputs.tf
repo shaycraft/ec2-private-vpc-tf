@@ -21,3 +21,11 @@ output "wordpress_ip_public" {
 output "wordpress_ip_private" {
   value = aws_instance.wordpress.private_ip
 }
+
+output "nginx_public_ic" {
+  value = aws_instance.nginx.public_ip
+}
+
+output "nginx_public_dns" {
+  value = aws_instance.nginx.public_dns
+}
