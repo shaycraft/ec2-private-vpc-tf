@@ -21,7 +21,6 @@ resource "aws_key_pair" "terraform_local_key_file" {
   public_key = data.local_file.ssh_key.content
 }
 
-
 module "vpc" {
   source                       = "terraform-aws-modules/vpc/aws"
   cidr                         = var.vpc_cidr
@@ -55,7 +54,7 @@ resource "aws_instance" "nginx" {
     Name = "nginx ubuntu terraform"
   }
   subnet_id              = module.vpc.public_subnets[0]
-  vpc_security_group_ids = [aws_security_group.main.id]
+  vpc_security_group_ids = [module.security_group.security_group_id]
 
   connection {
     type        = "ssh"
@@ -73,35 +72,19 @@ resource "aws_instance" "wordpress" {
     Name = "wordpress ec2 terraform"
   }
   subnet_id              = module.vpc.private_subnets[0]
-  vpc_security_group_ids = [aws_security_group.main.id]
+  vpc_security_group_ids = [module.security_group.security_group_id]
 }
 
-resource "aws_security_group" "main" {
-  vpc_id = module.vpc.vpc_id
-  egress = [
-    {
-      cidr_blocks      = ["0.0.0.0/0", ]
-      description      = ""
-      from_port        = 0
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "-1"
-      security_groups  = []
-      self             = false
-      to_port          = 0
-    }
-  ]
-  ingress = [
-    {
-      cidr_blocks      = ["0.0.0.0/0", ]
-      description      = ""
-      from_port        = 0
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "-1"
-      security_groups  = []
-      self             = false
-      to_port          = 0
-    }
-  ]
+module "security_group" {
+  source              = "terraform-aws-modules/security-group/aws"
+  name                = "main default security group for ec2 instances"
+  vpc_id              = module.vpc.vpc_id
+  egress_rules        = ["all-all"]
+  ingress_rules       = ["all-all"]
+  egress_cidr_blocks  = ["0.0.0.0/0"]
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+
+  tags = {
+    "Name" = "terraform security-group main"
+  }
 }
