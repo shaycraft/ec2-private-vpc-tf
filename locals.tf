@@ -21,7 +21,7 @@ locals {
   inbound = {
     public = [
       {
-        protocol    = -1
+        protocol    = "tcp"
         rule_number = 100
         rule_action = "allow"
         cidr_block  = "0.0.0.0/0"
@@ -32,7 +32,7 @@ locals {
 
     private = [
       {
-        protocol    = -1
+        protocol    = "tcp"
         rule_number = 101
         rule_action = "allow"
         cidr_block  = "0.0.0.0/0"
@@ -40,7 +40,7 @@ locals {
         to_port     = 80
       },
       {
-        protocol    = -1
+        protocol    = "tcp"
         rule_number = 102
         rule_action = "allow"
         cidr_block  = "0.0.0.0/0"

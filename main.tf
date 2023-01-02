@@ -5,7 +5,7 @@ data "aws_ami" "ubuntu_ami" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-22.04-amd64-server-*"]
   }
 
   # canonical ubuntu id
@@ -37,13 +37,12 @@ module "vpc" {
   single_nat_gateway           = true
 
   manage_default_network_acl    = false
-  default_network_acl_name      = "terraform_ec2_wordpress_acl"
   public_dedicated_network_acl  = true
   private_dedicated_network_acl = true
 
   public_inbound_acl_rules   = concat(local.default_inbound, local.inbound.public, local.inbound.private)
   public_outbound_acl_rules  = local.default_outbound
-  private_inbound_acl_rules  = local.inbound.private
+  private_inbound_acl_rules  = concat(local.default_inbound, local.inbound.private)
   private_outbound_acl_rules = local.default_outbound
 }
 
