@@ -23,26 +23,47 @@ resource "aws_key_pair" "terraform_local_key_file" {
 
 
 module "vpc" {
-  source                        = "terraform-aws-modules/vpc/aws"
-  cidr                          = var.vpc_cidr
-  public_subnets                = var.public_subnets
-  private_subnets               = var.private_subnets
-  azs                           = data.aws_availability_zones.azs.names
-  tags                          = { "Name" = "terraform vpc" }
-  create_database_subnet_group  = false
-  public_subnet_tags            = { "Name" = "public subnet terraform" }
-  private_subnet_tags           = { "Name" = "private subnet terraform" }
-  enable_dns_hostnames          = true
-  enable_nat_gateway            = true
-  manage_default_network_acl    = true
-  public_dedicated_network_acl  = true
-  private_dedicated_network_acl = true
-  default_network_acl_name      = "terraform_ec2_wordpress_acl"
+  source                       = "terraform-aws-modules/vpc/aws"
+  cidr                         = var.vpc_cidr
+  public_subnets               = var.public_subnets
+  private_subnets              = var.private_subnets
+  azs                          = data.aws_availability_zones.azs.names
+  tags                         = { "Name" = "terraform vpc" }
+  create_database_subnet_group = false
+  public_subnet_tags           = { "Name" = "public subnet terraform" }
+  private_subnet_tags          = { "Name" = "private subnet terraform" }
+  enable_dns_hostnames         = true
+  enable_nat_gateway           = true
 
-  public_inbound_acl_rules   = local.default_acl_ingress
-  private_inbound_acl_rules  = local.default_acl_ingress
-  public_outbound_acl_rules  = local.default_acl_egress
-  private_outbound_acl_rules = local.default_acl_egress
+  manage_default_network_acl    = true
+  default_network_acl_name      = "terraform_ec2_wordpress_acl"
+  public_dedicated_network_acl  = false
+  private_dedicated_network_acl = false
+
+  #  public_inbound_acl_rules   = local.default_acl_ingress
+  #  private_inbound_acl_rules  = local.default_acl_ingress
+  #  public_outbound_acl_rules  = local.default_acl_egress
+  #  private_outbound_acl_rules = local.default_acl_egress
+
+  default_network_acl_egress = [
+    {
+      protocol   = -1
+      rule_no    = 100
+      action     = "allow"
+      cidr_block = "0.0.0.0/0"
+      from_port  = 0
+      to_port    = 0
+    }
+  ]
+  default_network_acl_ingress = [
+    {
+      protocol   = -1
+      rule_no    = 100
+      action     = "allow"
+      cidr_block = "0.0.0.0/0"
+      from_port  = 0
+      to_port    = 0
+  }]
 }
 
 resource "aws_instance" "nginx" {
