@@ -34,36 +34,17 @@ module "vpc" {
   private_subnet_tags          = { "Name" = "private subnet terraform" }
   enable_dns_hostnames         = true
   enable_nat_gateway           = true
+  single_nat_gateway           = true
 
-  manage_default_network_acl    = true
+  manage_default_network_acl    = false
   default_network_acl_name      = "terraform_ec2_wordpress_acl"
-  public_dedicated_network_acl  = false
-  private_dedicated_network_acl = false
+  public_dedicated_network_acl  = true
+  private_dedicated_network_acl = true
 
-  #  public_inbound_acl_rules   = local.default_acl_ingress
-  #  private_inbound_acl_rules  = local.default_acl_ingress
-  #  public_outbound_acl_rules  = local.default_acl_egress
-  #  private_outbound_acl_rules = local.default_acl_egress
-
-  default_network_acl_egress = [
-    {
-      protocol   = -1
-      rule_no    = 100
-      action     = "allow"
-      cidr_block = "0.0.0.0/0"
-      from_port  = 0
-      to_port    = 0
-    }
-  ]
-  default_network_acl_ingress = [
-    {
-      protocol   = -1
-      rule_no    = 100
-      action     = "allow"
-      cidr_block = "0.0.0.0/0"
-      from_port  = 0
-      to_port    = 0
-  }]
+  public_inbound_acl_rules   = concat(local.default_inbound, local.inbound.public, local.inbound.private)
+  public_outbound_acl_rules  = local.default_outbound
+  private_inbound_acl_rules  = local.inbound.private
+  private_outbound_acl_rules = local.default_outbound
 }
 
 resource "aws_instance" "nginx" {
