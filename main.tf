@@ -23,21 +23,26 @@ resource "aws_key_pair" "terraform_local_key_file" {
 
 
 module "vpc" {
-  source                       = "terraform-aws-modules/vpc/aws"
-  cidr                         = var.vpc_cidr
-  public_subnets               = var.public_subnets
-  private_subnets              = var.private_subnets
-  azs                          = data.aws_availability_zones.azs.names
-  tags                         = { "Name" = "terraform vpc" }
-  create_database_subnet_group = false
-  public_subnet_tags           = { "Name" = "public subnet terraform" }
-  private_subnet_tags          = { "Name" = "private subnet terraform" }
-  enable_dns_hostnames         = true
-  enable_nat_gateway           = true
-  manage_default_network_acl   = true
-  default_network_acl_name     = "terraform_ec2_wordpress_acl"
-  default_network_acl_egress   = local.default_acl_egress
-  default_network_acl_ingress  = local.default_acl_ingress
+  source                        = "terraform-aws-modules/vpc/aws"
+  cidr                          = var.vpc_cidr
+  public_subnets                = var.public_subnets
+  private_subnets               = var.private_subnets
+  azs                           = data.aws_availability_zones.azs.names
+  tags                          = { "Name" = "terraform vpc" }
+  create_database_subnet_group  = false
+  public_subnet_tags            = { "Name" = "public subnet terraform" }
+  private_subnet_tags           = { "Name" = "private subnet terraform" }
+  enable_dns_hostnames          = true
+  enable_nat_gateway            = true
+  manage_default_network_acl    = true
+  public_dedicated_network_acl  = true
+  private_dedicated_network_acl = true
+  default_network_acl_name      = "terraform_ec2_wordpress_acl"
+
+  public_inbound_acl_rules   = local.default_acl_ingress
+  private_inbound_acl_rules  = local.default_acl_ingress
+  public_outbound_acl_rules  = local.default_acl_egress
+  private_outbound_acl_rules = local.default_acl_egress
 }
 
 resource "aws_instance" "nginx" {
