@@ -54,7 +54,7 @@ resource "aws_instance" "nginx" {
     Name = "nginx ubuntu terraform"
   }
   subnet_id              = module.vpc.public_subnets[0]
-  vpc_security_group_ids = [module.security_groups.id]
+  vpc_security_group_ids = module.security_groups.ids
 
   connection {
     type        = "ssh"
@@ -72,7 +72,7 @@ resource "aws_instance" "wordpress" {
     Name = "wordpress ec2 terraform"
   }
   subnet_id              = module.vpc.private_subnets[0]
-  vpc_security_group_ids = [module.security_groups.id]
+  vpc_security_group_ids = module.security_groups.ids
 }
 
 module "security_groups" {
