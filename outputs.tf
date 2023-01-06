@@ -33,7 +33,3 @@ output "nginx_private_ip" {
 output "nginx_public_dns" {
   value = aws_instance.nginx.public_dns
 }
-
-output "foobar" {
-  value = module.security_groups.ids
-}
