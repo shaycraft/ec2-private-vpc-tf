@@ -3,7 +3,7 @@ terraform {
     organization = "mr-gav-meow"
 
     workspaces {
-      name = "ec2-private-vpc-apigw"
+      name = "ec2-private-vpc"
     }
   }
 }
