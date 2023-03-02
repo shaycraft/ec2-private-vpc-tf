@@ -12,13 +12,16 @@ data "aws_ami" "ubuntu_ami" {
   owners = ["099720109477"]
 }
 
-data "local_file" "ssh_key" {
-  filename = "${path.module}/ssh-key.pub"
+
+resource "tls_private_key" "private_key" {
+
+  algorithm = "RSA"
+  rsa_bits  = 4096
 }
 
-resource "aws_key_pair" "terraform_local_key_file" {
-  key_name   = "terraform_local_key_file"
-  public_key = data.local_file.ssh_key.content
+resource "aws_key_pair" "generated_key" {
+  key_name   = var.ssh_key_name
+  public_key = tls_private_key.private_key.public_key_openssh
 }
 
 module "vpc" {
@@ -46,10 +49,10 @@ module "vpc" {
 }
 
 resource "aws_instance" "nginx" {
-  depends_on    = [data.local_file.ssh_key]
+  depends_on    = [aws_key_pair.generated_key]
   ami           = data.aws_ami.ubuntu_ami.id
   instance_type = "t2.micro"
-  key_name      = "terraform_local_key_file"
+  key_name      = var.ssh_key_name
   tags = {
     Name = "nginx ubuntu terraform"
   }
@@ -60,7 +63,7 @@ resource "aws_instance" "nginx" {
     type        = "ssh"
     host        = self.public_ip
     user        = "ubuntu"
-    private_key = data.local_file.ssh_key
+    private_key = tls_private_key.private_key
     timeout     = "4m"
   }
 }

@@ -22,3 +22,9 @@ variable "private_subnets" {
   description = "Private subnets"
   type        = list(string)
 }
+
+variable "ssh_key_name" {
+  description = "ssh key name"
+  type        = string
+  default     = "terraform_ec2-private-vpc-poc"
+}
