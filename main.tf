@@ -36,15 +36,15 @@ module "vpc" {
   private_outbound_acl_rules = local.default_outbound
 }
 
-resource "aws_key_pair" "terraform_local_key_file" {
-  key_name   = "terraform_local_key_file"
+resource "aws_key_pair" "terraform_workspace_var_key" {
+  key_name   = "terraform_workspace_var_key"
   public_key = var.ssh_key_public
 }
 
 resource "aws_instance" "nginx" {
   ami           = data.aws_ami.ubuntu_ami.id
   instance_type = "t2.micro"
-  key_name      = "terraform_local_key_file"
+  key_name      = "terraform_workspace_var_key"
   tags = {
     Name = "nginx ubuntu terraform"
   }
@@ -57,6 +57,14 @@ resource "aws_instance" "nginx" {
     user        = "ubuntu"
     private_key = var.ssh_key_private
     timeout     = "4m"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      # see https://serverfault.com/questions/478461/how-to-install-packages-with-apt-without-user-interaction
+      "sudo apt install --assume-yes nginx",
+      "sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt"
+    ]
   }
 }
 
