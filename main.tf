@@ -36,6 +36,11 @@ module "vpc" {
   private_outbound_acl_rules = local.default_outbound
 }
 
+resource "aws_key_pair" "terraform_local_key_file" {
+  key_name   = "terraform_local_key_file"
+  public_key = var.ssh_key_public
+}
+
 resource "aws_instance" "nginx" {
   ami           = data.aws_ami.ubuntu_ami.id
   instance_type = "t2.micro"
