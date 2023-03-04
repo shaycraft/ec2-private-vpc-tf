@@ -62,8 +62,8 @@ resource "aws_instance" "nginx" {
   provisioner "remote-exec" {
     inline = [
       # see https://serverfault.com/questions/478461/how-to-install-packages-with-apt-without-user-interaction
-      "sudo apt install --assume-yes nginx",
-      "sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt"
+      "sudo apt-get update && sudo apt-get -y install nginx",
+      "sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -subj '/C=US'"
     ]
   }
 }
