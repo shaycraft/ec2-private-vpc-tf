@@ -66,6 +66,18 @@ resource "aws_instance" "nginx" {
     private_key = tls_private_key.private_key
     timeout     = "4m"
   }
+
+  provisioner "file" {
+    content     = templatefile("${path.module}/config/nginx.config.tftpl", { proxy_pass = aws_instance.wordpress.private_ip })
+    destination = "/tmp/terraform-nginx.config"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/config/self-signed.config"
+    destination = "/tmp/terraform-self-signed.config"
+  }
+
+  user_data = file("${path.module}/scripts/setup-nginx-certs.sh")
 }
 
 resource "aws_instance" "wordpress" {
