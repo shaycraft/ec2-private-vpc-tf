@@ -1,6 +1,6 @@
 # ec2-private-vpc-tf
 
-POC with ec2 instance on a private vpc, with an http proxy endpoint
+POC with ec2 instance on a private vpc, with a http proxy endpoint
 
 ### update and install nginx:
 ```shell
@@ -39,3 +39,7 @@ server {
 ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
 ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
 ```
+
+## Update to `refactor/generated-ssh-key` branch:
+Now ssh key is automatically generated, see output values.  To get the sensitive value, pass 
+ a `--raw` command to `terraform output`

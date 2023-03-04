@@ -12,6 +12,18 @@ data "aws_ami" "ubuntu_ami" {
   owners = ["099720109477"]
 }
 
+
+resource "tls_private_key" "private_key" {
+
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "generated_key" {
+  key_name   = var.ssh_key_name
+  public_key = tls_private_key.private_key.public_key_openssh
+}
+
 module "vpc" {
   source                       = "terraform-aws-modules/vpc/aws"
   cidr                         = var.vpc_cidr
@@ -36,15 +48,11 @@ module "vpc" {
   private_outbound_acl_rules = local.default_outbound
 }
 
-resource "aws_key_pair" "terraform_workspace_var_key" {
-  key_name   = "terraform_workspace_var_key"
-  public_key = var.ssh_key_public
-}
-
 resource "aws_instance" "nginx" {
+  depends_on    = [aws_key_pair.generated_key]
   ami           = data.aws_ami.ubuntu_ami.id
   instance_type = "t2.micro"
-  key_name      = "terraform_workspace_var_key"
+  key_name      = var.ssh_key_name
   tags = {
     Name = "nginx ubuntu terraform"
   }
@@ -55,7 +63,7 @@ resource "aws_instance" "nginx" {
     type        = "ssh"
     host        = self.public_ip
     user        = "ubuntu"
-    private_key = var.ssh_key_private
+    private_key = tls_private_key.private_key
     timeout     = "4m"
   }
 

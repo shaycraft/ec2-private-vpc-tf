@@ -23,12 +23,8 @@ variable "private_subnets" {
   type        = list(string)
 }
 
-variable "ssh_key_public" {
-  description = "Public ssh key to use for nginx instance"
+variable "ssh_key_name" {
+  description = "ssh key name"
   type        = string
-}
-
-variable "ssh_key_private" {
-  description = "Private ssh key to use for nginx instances"
-  type        = string
+  default     = "terraform_ec2-private-vpc-poc"
 }
