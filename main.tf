@@ -36,10 +36,15 @@ module "vpc" {
   private_outbound_acl_rules = local.default_outbound
 }
 
+resource "aws_key_pair" "terraform_workspace_var_key" {
+  key_name   = "terraform_workspace_var_key"
+  public_key = var.ssh_key_public
+}
+
 resource "aws_instance" "nginx" {
   ami           = data.aws_ami.ubuntu_ami.id
   instance_type = "t2.micro"
-  key_name      = "terraform_local_key_file"
+  key_name      = "terraform_workspace_var_key"
   tags = {
     Name = "nginx ubuntu terraform"
   }
@@ -53,6 +58,18 @@ resource "aws_instance" "nginx" {
     private_key = var.ssh_key_private
     timeout     = "4m"
   }
+
+  provisioner "file" {
+    content     = templatefile("${path.module}/config/nginx.config.tftpl", { proxy_pass = aws_instance.wordpress.private_ip })
+    destination = "/tmp/terraform-nginx.config"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/config/self-signed.config"
+    destination = "/tmp/terraform-self-signed.config"
+  }
+
+  user_data = file("${path.module}/scripts/setup-nginx-certs.sh")
 }
 
 resource "aws_instance" "wordpress" {
